@@ -11,6 +11,10 @@ It's easy:
 ```bash
 $ ./install.sh
 ```
+Add `.scripts` folder to path:
+```bash
+$ echo 'export PATH="$HOME/.scripts:$PATH"' >> ~/.zshrc
+```
 
 ## Usage
 
