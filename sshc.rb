@@ -42,6 +42,7 @@ end
 def list
   servers = File.open(URL, 'r') { |f| f.map(&:strip) }
   servers = servers.map { |s| s.split(",") }
+  return if servers.nil?
   widths = [servers.map(&:first).max_by(&:length).length + 2,
             servers.map{|s|s[1]}.max_by(&:length).length + 2]
   pretty("NAME", "USER", "IP", widths)
