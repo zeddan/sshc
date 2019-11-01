@@ -2,18 +2,13 @@
 
 sshc (as in ssh connect) is a utility for connecting to ssh servers and managing credentials
 
-
-
 ## Installation
 
 It's easy:
 
 ```bash
-$ ./install.sh
-```
-Add `.scripts` folder to path:
-```bash
-$ echo 'export PATH="$HOME/.scripts:$PATH"' >> ~/.zshrc
+$ chmod +x sshc
+$ sudo cp sshc /usr/local/bin
 ```
 
 ## Usage
@@ -28,3 +23,4 @@ $ echo 'export PATH="$HOME/.scripts:$PATH"' >> ~/.zshrc
 
 ## License
 No
+
