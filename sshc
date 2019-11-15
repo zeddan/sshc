@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+require 'byebug'
 
 DIR_PATH  = File.expand_path("~/.config/sshc")
 FILE_PATH = File.expand_path("~/.config/sshc/instances")
@@ -53,9 +54,9 @@ def list
   return if servers.nil? || servers.empty?
   widths = [servers.map(&:first).max_by(&:length).length + 2,
             servers.map{|s|s[1]}.max_by(&:length).length + 2]
-  pretty("NAME", "USER", "IP", widths)
+  pretty_print("NAME", "USER", "IP", widths)
   servers.each do |s|
-    pretty(s[0], s[1], s[2], widths)
+    pretty_print(s[0], s[1], s[2], widths)
   end
 end
 
@@ -65,7 +66,7 @@ def prompt_add(value, string)
   tmp_value.empty? ? value : tmp_value
 end
 
-def pretty(name, user, ip, widths)
+def pretty_print(name, user, ip, widths)
   printf "%-#{widths[0]}s %-#{widths[1]}s %s\n", name, user, ip
 end
 
