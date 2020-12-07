@@ -89,10 +89,10 @@ case ARGV.first
 when "add"
   add_instance
   exit
-when "list"
+when "list", "ls"
   list
   exit
-when "remove"
+when "remove", "rm"
   remove_instance
   exit
 end
