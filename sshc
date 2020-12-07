@@ -1,31 +1,18 @@
 #!/usr/bin/env ruby
 
-DIR_PATH  = File.expand_path("~/.config/sshc")
-FILE_PATH = File.expand_path("~/.config/sshc/instances")
+DIR_PATH      = File.expand_path("~/.config/sshc")
+INST_PATH     = File.expand_path("~/.config/sshc/instances")
+TMP_INST_PATH = File.expand_path("~/.config/sshc/instances_tmp")
 
-unless Dir.exist?(DIR_PATH) && File.file?(FILE_PATH)
+unless Dir.exist?(DIR_PATH) && File.file?(INST_PATH)
   system 'mkdir', '-p', DIR_PATH
-  File.new(FILE_PATH, "w")
+  File.new(INST_PATH, "w")
 end
 
 def connect
-  servers = File.open(FILE_PATH, 'r') { |f| f.map(&:strip) }
-  servers = servers.map { |s| s.split(",") }
-
-  puts "Select instance:\n\n"
-  servers.each.with_index(1) do |server, idx|
-    puts "#{idx}) #{server.first}"
-  end
-  print "\n> "
-
-  choice = STDIN.gets.to_i
-  exit unless choice.between?(1, servers.size)
-  server = servers[choice - 1]
-
+  server = select_instance
   puts "\nssh #{server[1]}@#{server[2]}"
   exec "ssh #{server[1]}@#{server[2]}"
-rescue Interrupt
-  exit
 end
 
 def add_instance(name = "", user = "", ip = "")
@@ -39,7 +26,7 @@ def add_instance(name = "", user = "", ip = "")
   case
   when confirm == "y", confirm.empty?
     puts "OK!"
-    File.open(FILE_PATH, 'a') { |f| f << "#{name},#{user},#{ip}\n" }
+    File.open(INST_PATH, 'a') { |f| f << "#{name},#{user},#{ip}\n" }
   when confirm == "n"
     add_instance(name, user, ip)
   end
@@ -48,8 +35,7 @@ rescue Interrupt
 end
 
 def list
-  servers = File.open(FILE_PATH, 'r') { |f| f.map(&:strip) }
-  servers = servers.map { |s| s.split(",") }
+  servers = load_servers
   return if servers.nil? || servers.empty?
   widths = [servers.map(&:first).max_by(&:length).length + 2,
             servers.map{|s|s[1]}.max_by(&:length).length + 2]
@@ -57,6 +43,36 @@ def list
   servers.each do |s|
     pretty_print(s[0], s[1], s[2], widths)
   end
+end
+
+def remove_instance
+  server = select_instance
+  File.open(TMP_INST_PATH, 'w') do |out_file|
+    File.foreach(INST_PATH) do |line|
+      out_file.puts line unless line.strip == server.join(",")
+    end
+  end
+  File.rename(TMP_INST_PATH, INST_PATH)
+end
+
+def select_instance
+  servers = load_servers
+
+  puts "Select instance:\n\n"
+  servers.each.with_index(1) do |server, idx|
+    puts "#{idx}) #{server.first}"
+  end
+  print "\n> "
+
+  choice = STDIN.gets.to_i
+  exit unless choice.between?(1, servers.size)
+  servers[choice - 1]
+rescue Interrupt
+  exit
+end
+
+def load_servers
+  File.open(INST_PATH, 'r') { |f| f.map(&:strip) }.map { |s| s.split(",") }
 end
 
 def prompt_add(value, string)
@@ -75,6 +91,9 @@ when "add"
   exit
 when "list"
   list
+  exit
+when "remove"
+  remove_instance
   exit
 end
 
