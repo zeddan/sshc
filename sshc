@@ -72,7 +72,7 @@ rescue Interrupt
 end
 
 def load_servers
-  File.open(INST_PATH, 'r') { |f| f.map(&:strip) }.map { |s| s.split(",") }
+  File.open(INST_PATH, 'r') { |f| f.map { |line| line.strip.split(",") } }
 end
 
 def prompt_add(value, string)
