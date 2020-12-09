@@ -5,7 +5,7 @@ INST_PATH     = File.expand_path("~/.config/sshc/instances")
 TMP_INST_PATH = File.expand_path("~/.config/sshc/instances_tmp")
 
 unless Dir.exist?(DIR_PATH) && File.file?(INST_PATH)
-  system 'mkdir', '-p', DIR_PATH
+  system "mkdir", "-p", DIR_PATH
   File.new(INST_PATH, "w")
 end
 
@@ -22,12 +22,12 @@ def add_instance(name = "", user = "", ip = "")
 
   print "Add #{name} for #{user}@#{ip}? (Y/n) "
 
-  confirm = STDIN.gets.chomp.downcase
-  case
-  when confirm == "y", confirm.empty?
+  confirm = $stdin.gets.chomp.downcase
+  case confirm
+  when "y", ""
     puts "OK!"
-    File.open(INST_PATH, 'a') { |f| f << "#{name},#{user},#{ip}\n" }
-  when confirm == "n"
+    File.open(INST_PATH, "a") { |f| f << "#{name},#{user},#{ip}\n" }
+  when "n"
     add_instance(name, user, ip)
   end
 rescue Interrupt
@@ -37,6 +37,7 @@ end
 def list
   servers = load_servers
   return if servers.nil? || servers.empty?
+
   widths = [servers.map(&:first).max_by(&:length).length + 2,
             servers.map{|s|s[1]}.max_by(&:length).length + 2]
   pretty_print("NAME", "USER", "IP", widths)
@@ -47,7 +48,7 @@ end
 
 def remove_instance
   server = select_instance
-  File.open(TMP_INST_PATH, 'w') do |out_file|
+  File.open(TMP_INST_PATH, "w") do |out_file|
     File.foreach(INST_PATH) do |line|
       out_file.puts line unless line.strip == server.join(",")
     end
@@ -64,7 +65,7 @@ def select_instance
   end
   print "\n> "
 
-  choice = STDIN.gets.to_i
+  choice = $stdin.gets.to_i
   exit unless choice.between?(1, servers.size)
   servers[choice - 1]
 rescue Interrupt
@@ -72,12 +73,12 @@ rescue Interrupt
 end
 
 def load_servers
-  File.open(INST_PATH, 'r') { |f| f.map { |line| line.strip.split(",") } }
+  File.open(INST_PATH, "r") { |f| f.map { |line| line.strip.split(",") } }
 end
 
 def prompt_add(value, string)
   print value.empty? ? "#{string}: " : "#{string} (#{value}): "
-  tmp_value = STDIN.gets.chomp 
+  tmp_value = $stdin.gets.chomp
   tmp_value.empty? ? value : tmp_value
 end
 
@@ -98,4 +99,3 @@ when "remove", "rm"
 end
 
 connect
-
