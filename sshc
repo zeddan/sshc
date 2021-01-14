@@ -12,7 +12,7 @@ end
 def connect
   server = select_instance
   puts "\nssh #{server[1]}@#{server[2]}"
-  exec "ssh #{server[1]}@#{server[2]}"
+  exec "ssh", "#{server[1]}@#{server[2]}"
 end
 
 def add_instance(name = "", user = "", ip = "")
