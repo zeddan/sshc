@@ -54,6 +54,7 @@ def remove_instance
     end
   end
   File.rename(TMP_INST_PATH, INST_PATH)
+  puts "OK!"
 end
 
 def select_instance
