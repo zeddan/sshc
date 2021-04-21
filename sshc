@@ -34,7 +34,7 @@ rescue Interrupt
   exit
 end
 
-def list
+def list_instances
   servers = load_servers
   return if servers.nil? || servers.empty?
 
@@ -92,7 +92,7 @@ when "add"
   add_instance
   exit
 when "list", "ls"
-  list
+  list_instances
   exit
 when "remove", "rm"
   remove_instance
