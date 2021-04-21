@@ -19,6 +19,8 @@ $ sudo cp sshc /usr/local/bin
 
 `sshc add` - Interactive prompt for adding a server
 
+`sshc edit` - Interactive prompt for editing a server
+
 `sshc remove` - Interactive prompt for removing a server
 
 ## License

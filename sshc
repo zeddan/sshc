@@ -15,23 +15,17 @@ def connect
   exec "ssh", "#{server[1]}@#{server[2]}"
 end
 
-def add_instance(name = "", user = "", ip = "")
-  name = prompt_add(name, "Name")
-  user = prompt_add(user, "User")
-  ip = prompt_add(ip, "IP")
+def add_instance
+  server = prompt_instance_info
+  append_to_file(server)
+  puts "OK!"
+end
 
-  print "Add #{name} for #{user}@#{ip}? (Y/n) "
-
-  confirm = $stdin.gets.chomp.downcase
-  case confirm
-  when "y", ""
-    puts "OK!"
-    File.open(INST_PATH, "a") { |f| f << "#{name},#{user},#{ip}\n" }
-  when "n"
-    add_instance(name, user, ip)
-  end
-rescue Interrupt
-  exit
+def edit_instance
+  server = select_instance
+  edited_server = prompt_instance_info(server[0], server[1], server[2])
+  edit_in_file(server, edited_server)
+  puts "OK!"
 end
 
 def list_instances
@@ -73,8 +67,43 @@ rescue Interrupt
   exit
 end
 
+def prompt_instance_info(name = "", user = "", ip = "")
+  name = prompt_add(name, "Name")
+  user = prompt_add(user, "User")
+  ip = prompt_add(ip, "IP")
+
+  print "Add #{name} for #{user}@#{ip}? (Y/n) "
+
+  confirm = $stdin.gets.chomp.downcase
+  case confirm
+  when "y", ""
+    return "#{name},#{user},#{ip}"
+  when "n"
+    prompt_instance_info(name, user, ip)
+  end
+rescue Interrupt
+  exit
+end
+
 def load_servers
   File.open(INST_PATH, "r") { |f| f.map { |line| line.strip.split(",") } }
+end
+
+def append_to_file(server)
+  File.open(INST_PATH, "a") { |f| f << "#{server}\n" }
+end
+
+def edit_in_file(previous_server, edited_server)
+  servers = File.readlines(INST_PATH)
+  File.open(INST_PATH, "w") do |out_file|
+    servers.each do |server|
+      if server.strip == previous_server.join(",")
+        out_file.puts edited_server
+      else
+        out_file.puts server
+      end
+    end
+  end
 end
 
 def prompt_add(value, string)
@@ -90,6 +119,9 @@ end
 case ARGV.first
 when "add"
   add_instance
+  exit
+when "edit"
+  edit_instance
   exit
 when "list", "ls"
   list_instances
