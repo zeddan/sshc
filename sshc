@@ -68,9 +68,9 @@ rescue Interrupt
 end
 
 def prompt_instance_info(name = "", user = "", ip = "")
-  name = prompt_value(name, "Name")
-  user = prompt_value(user, "User")
-  ip = prompt_value(ip, "IP")
+  name = prompt_value("Name", name)
+  user = prompt_value("User", user)
+  ip = prompt_value("IP", ip)
 
   print "Add #{name} for #{user}@#{ip}? (Y/n) "
 
@@ -106,7 +106,7 @@ def edit_in_file(previous_server, edited_server)
   end
 end
 
-def prompt_value(value, key)
+def prompt_value(key, value)
   print value.empty? ? "#{key}: " : "#{key} (#{value}): "
   input_value = $stdin.gets.chomp
   input_value.empty? ? value : input_value
