@@ -106,8 +106,8 @@ def edit_in_file(previous_server, edited_server)
   end
 end
 
-def prompt_value(value, string)
-  print value.empty? ? "#{string}: " : "#{string} (#{value}): "
+def prompt_value(value, key)
+  print value.empty? ? "#{key}: " : "#{key} (#{value}): "
   tmp_value = $stdin.gets.chomp
   tmp_value.empty? ? value : tmp_value
 end
