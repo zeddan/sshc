@@ -108,8 +108,8 @@ end
 
 def prompt_value(value, key)
   print value.empty? ? "#{key}: " : "#{key} (#{value}): "
-  tmp_value = $stdin.gets.chomp
-  tmp_value.empty? ? value : tmp_value
+  input_value = $stdin.gets.chomp
+  input_value.empty? ? value : input_value
 end
 
 def pretty_print(name, user, ip, widths)
