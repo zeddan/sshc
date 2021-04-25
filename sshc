@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
 DIR_PATH      = File.expand_path("~/.config/sshc")
-INST_PATH     = File.expand_path("~/.config/sshc/instances")
-TMP_INST_PATH = File.expand_path("~/.config/sshc/instances_tmp")
+INST_PATH     = File.expand_path("~/.config/sshc/servers")
+TMP_INST_PATH = File.expand_path("~/.config/sshc/servers_tmp")
 
 unless Dir.exist?(DIR_PATH) && File.file?(INST_PATH)
   system "mkdir", "-p", DIR_PATH
@@ -10,25 +10,25 @@ unless Dir.exist?(DIR_PATH) && File.file?(INST_PATH)
 end
 
 def connect
-  server = select_instance
+  server = select_server
   puts "\nssh #{server[1]}@#{server[2]}"
   exec "ssh", "#{server[1]}@#{server[2]}"
 end
 
-def add_instance
-  server = prompt_instance_info
+def add_server
+  server = prompt_server_info
   append_to_file(server)
   puts "OK!"
 end
 
-def edit_instance
-  server = select_instance
-  edited_server = prompt_instance_info(server[0], server[1], server[2])
+def edit_server
+  server = select_server
+  edited_server = prompt_server_info(server[0], server[1], server[2])
   edit_in_file(server, edited_server)
   puts "OK!"
 end
 
-def list_instances
+def list_servers
   servers = load_servers
   return if servers.nil? || servers.empty?
 
@@ -40,8 +40,8 @@ def list_instances
   end
 end
 
-def remove_instance
-  server = select_instance
+def remove_server
+  server = select_server
   File.open(TMP_INST_PATH, "w") do |out_file|
     File.foreach(INST_PATH) do |line|
       out_file.puts line unless line.strip == server.join(",")
@@ -51,10 +51,10 @@ def remove_instance
   puts "OK!"
 end
 
-def select_instance
+def select_server
   servers = load_servers
 
-  puts "Select instance:\n\n"
+  puts "Select server:\n\n"
   servers.each.with_index(1) do |server, idx|
     puts "#{idx}) #{server.first}"
   end
@@ -67,7 +67,7 @@ rescue Interrupt
   exit
 end
 
-def prompt_instance_info(name = "", user = "", ip = "")
+def prompt_server_info(name = "", user = "", ip = "")
   name = prompt_value("Name", name)
   user = prompt_value("User", user)
   ip = prompt_value("IP", ip)
@@ -79,7 +79,7 @@ def prompt_instance_info(name = "", user = "", ip = "")
   when "y", ""
     return "#{name},#{user},#{ip}"
   when "n"
-    prompt_instance_info(name, user, ip)
+    prompt_server_info(name, user, ip)
   end
 rescue Interrupt
   exit
@@ -118,16 +118,16 @@ end
 
 case ARGV.first
 when "add"
-  add_instance
+  add_server
   exit
 when "edit"
-  edit_instance
+  edit_server
   exit
 when "list", "ls"
-  list_instances
+  list_servers
   exit
 when "remove", "rm"
-  remove_instance
+  remove_server
   exit
 end
 
