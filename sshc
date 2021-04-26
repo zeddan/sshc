@@ -129,6 +129,9 @@ when "list", "ls"
 when "remove", "rm"
   remove_server
   exit
+else
+  puts "sshc: command not found: #{ARGV.first}"
+  exit 1
 end
 
 connect
