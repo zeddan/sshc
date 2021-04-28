@@ -1,8 +1,7 @@
 #!/usr/bin/env ruby
 
-DIR_PATH      = File.expand_path("~/.config/sshc")
-INST_PATH     = File.expand_path("~/.config/sshc/servers")
-TMP_INST_PATH = File.expand_path("~/.config/sshc/servers_tmp")
+DIR_PATH  = File.expand_path("~/.config/sshc")
+INST_PATH = File.expand_path("~/.config/sshc/servers")
 
 unless Dir.exist?(DIR_PATH) && File.file?(INST_PATH)
   system "mkdir", "-p", DIR_PATH
@@ -41,13 +40,13 @@ def list_servers
 end
 
 def remove_server
-  server = select_server
-  File.open(TMP_INST_PATH, "w") do |out_file|
-    File.foreach(INST_PATH) do |line|
-      out_file.puts line unless line.strip == server.join(",")
+  server_to_remove = select_server
+  servers = File.readlines(INST_PATH)
+  File.open(INST_PATH, "w") do |out_file|
+    servers.each do |server|
+      out_file.puts server unless server.strip == server_to_remove.join(",")
     end
   end
-  File.rename(TMP_INST_PATH, INST_PATH)
   puts "OK!"
 end
 
