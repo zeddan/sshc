@@ -116,6 +116,9 @@ def pretty_print(name, user, ip, widths)
 end
 
 case ARGV.first
+when nil
+  connect
+  exit
 when "add"
   add_server
   exit
@@ -133,4 +136,3 @@ else
   exit 1
 end
 
-connect
