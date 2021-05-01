@@ -44,7 +44,9 @@ def remove_server
   servers = File.readlines(INST_PATH)
   File.open(INST_PATH, "w") do |out_file|
     servers.each do |server|
-      out_file.puts server unless server.strip == server_to_remove.join(",")
+      unless server.strip == server_to_remove.join(",")
+        out_file.puts server
+      end
     end
   end
   puts "OK!"
