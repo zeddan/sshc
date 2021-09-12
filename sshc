@@ -10,8 +10,14 @@ end
 
 def connect
   server = select_server
-  puts "\nssh #{server[1]}@#{server[2]}"
-  exec "ssh", "#{server[1]}@#{server[2]}"
+
+  if server[3] == "22"
+    puts "\nssh #{server[1]}@#{server[2]}"
+    exec "ssh", "#{server[1]}@#{server[2]}"
+  else
+    puts "\nssh -p #{server[3]} #{server[1]}@#{server[2]}"
+    exec "ssh", "-p", server[3], "#{server[1]}@#{server[2]}"
+  end
 end
 
 def add_server
@@ -22,7 +28,7 @@ end
 
 def edit_server
   server = select_server
-  edited_server = prompt_server_info(server[0], server[1], server[2])
+  edited_server = prompt_server_info(server[0], server[1], server[2], server[3])
   edit_in_file(server, edited_server)
   puts "OK!"
 end
@@ -32,10 +38,11 @@ def list_servers
   return if servers.nil? || servers.empty?
 
   widths = [servers.map(&:first).max_by(&:length).length + 2,
-            servers.map{|s|s[1]}.max_by(&:length).length + 2]
-  pretty_print("NAME", "USER", "IP", widths)
+            servers.map{|s|s[1]}.max_by(&:length).length + 2,
+            servers.map{|s|s[2]}.max_by(&:length).length + 2]
+  pretty_print("NAME", "USER", "IP", "PORT", widths)
   servers.each do |s|
-    pretty_print(s[0], s[1], s[2], widths)
+    pretty_print(s[0], s[1], s[2], s[3], widths)
   end
 end
 
@@ -68,19 +75,20 @@ rescue Interrupt
   exit
 end
 
-def prompt_server_info(name = "", user = "", ip = "")
+def prompt_server_info(name = "", user = "", ip = "", port = "22")
   name = prompt_value("Name", name)
   user = prompt_value("User", user)
   ip = prompt_value("IP", ip)
+  port = prompt_value("Port", port)
 
-  print "Add #{name} for #{user}@#{ip}? (Y/n) "
+  print "Add #{name} for #{user}@#{ip}:#{port}? (Y/n) "
 
   confirm = $stdin.gets.chomp.downcase
   case confirm
   when "y", ""
-    return "#{name},#{user},#{ip}"
+    return "#{name},#{user},#{ip},#{port}"
   when "n"
-    prompt_server_info(name, user, ip)
+    prompt_server_info(name, user, ip, port)
   end
 rescue Interrupt
   exit
@@ -113,8 +121,8 @@ def prompt_value(key, value)
   input_value.empty? ? value : input_value
 end
 
-def pretty_print(name, user, ip, widths)
-  printf "%-#{widths[0]}s %-#{widths[1]}s %s\n", name, user, ip
+def pretty_print(name, user, ip, port, widths)
+  printf "%-#{widths[0]}s %-#{widths[1]}s %-#{widths[2]}s %s\n", name, user, ip, port
 end
 
 case ARGV.first
