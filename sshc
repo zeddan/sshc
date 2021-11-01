@@ -11,12 +11,12 @@ end
 def connect
   server = select_server
 
-  if server[3] == "22"
-    puts "\nssh #{server[1]}@#{server[2]}"
-    exec "ssh", "#{server[1]}@#{server[2]}"
+  if server[:port] == "22"
+    puts "\nssh #{server[:user]}@#{server[:ip]}"
+    exec "ssh", "#{server[:user]}@#{server[:ip]}"
   else
-    puts "\nssh -p #{server[3]} #{server[1]}@#{server[2]}"
-    exec "ssh", "-p", server[3], "#{server[1]}@#{server[2]}"
+    puts "\nssh -p #{server[:port]} #{server[:user]}@#{server[:ip]}"
+    exec "ssh", "-p", server[:port], "#{server[:user]}@#{server[:ip]}"
   end
 end
 
@@ -28,7 +28,12 @@ end
 
 def edit_server
   server = select_server
-  edited_server = prompt_server_info(server[0], server[1], server[2], server[3])
+  edited_server = prompt_server_info(
+    server[:name],
+    server[:user],
+    server[:ip],
+    server[:port]
+  )
   edit_in_file(server, edited_server)
   puts "OK!"
 end
@@ -37,12 +42,12 @@ def list_servers
   servers = load_servers
   return if servers.nil? || servers.empty?
 
-  widths = [servers.map(&:first).max_by(&:length).length + 2,
-            servers.map{|s|s[1]}.max_by(&:length).length + 2,
-            servers.map{|s|s[2]}.max_by(&:length).length + 2]
+  widths = [widest_column_width(servers.map { |s| s[:name] }),
+            widest_column_width(servers.map { |s| s[:user] }),
+            widest_column_width(servers.map { |s| s[:ip] })]
   pretty_print("NAME", "USER", "IP", "PORT", widths)
   servers.each do |s|
-    pretty_print(s[0], s[1], s[2], s[3], widths)
+    pretty_print(s[:name], s[:user], s[:ip], s[:port], widths)
   end
 end
 
@@ -51,7 +56,7 @@ def remove_server
   servers = File.readlines(INST_PATH)
   File.open(INST_PATH, "w") do |out_file|
     servers.each do |server|
-      unless server.strip == server_to_remove.join(",")
+      unless server_to_remove == csv_to_hash(server.strip.split(","))
         out_file.puts server
       end
     end
@@ -64,7 +69,7 @@ def select_server
 
   puts "Select server:\n\n"
   servers.each.with_index(1) do |server, idx|
-    puts "#{idx}) #{server.first}"
+    puts "#{idx}) #{server[:name]}"
   end
   print "\n> "
 
@@ -95,7 +100,24 @@ rescue Interrupt
 end
 
 def load_servers
-  File.open(INST_PATH, "r") { |f| f.map { |line| line.strip.split(",") } }
+  File.open(INST_PATH, "r") do |file|
+    file.map do |line|
+      csv_to_hash(line.strip.split(","))
+    end
+  end
+end
+
+def csv_to_hash(server)
+  {
+    name: server[0],
+    user: server[1],
+    ip: server[2],
+    port: server[3]
+  }
+end
+
+def widest_column_width(values)
+  values.max_by(&:length).length + 2
 end
 
 def append_to_file(server)
@@ -106,7 +128,7 @@ def edit_in_file(previous_server, edited_server)
   servers = File.readlines(INST_PATH)
   File.open(INST_PATH, "w") do |out_file|
     servers.each do |server|
-      if server.strip == previous_server.join(",")
+      if previous_server == csv_to_hash(server.strip.split(","))
         out_file.puts edited_server
       else
         out_file.puts server
