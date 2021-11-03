@@ -15,13 +15,13 @@ $ sudo cp sshc /usr/local/bin
 
 `sshc` - Displays all servers and prompts for which one to connect to
 
-`sshc list` - Lists all servers and connection info
+`sshc list, [ls]` - Lists all servers and connection info
 
 `sshc add` - Interactive prompt for adding a server
 
 `sshc edit` - Interactive prompt for editing a server
 
-`sshc remove` - Interactive prompt for removing a server
+`sshc remove, [rm]` - Interactive prompt for removing a server
 
 ## License
 Use it any way you find meaningful or altruistic.
