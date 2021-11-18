@@ -116,16 +116,6 @@ def csv_to_hash(server)
   }
 end
 
-def print_help
-  puts %(
-    sshc - Displays all servers and prompts for which one to connect to
-    sshc list, [ls] - Lists all servers and connection info
-    sshc add - Interactive prompt for adding a server
-    sshc edit - Interactive prompt for editing a server
-    sshc remove, [rm] - Interactive prompt for removing a server
-  )
-end
-
 def widest_column_width(values)
   values.max_by(&:length).length + 2
 end
@@ -170,9 +160,6 @@ when "edit"
 when "list", "ls"
   list_servers
   exit
-when "help"
-  print_help
-  exit
 when "remove", "rm"
   remove_server
   exit
@@ -180,3 +167,4 @@ else
   puts "sshc: command not found: #{ARGV.first}"
   exit 1
 end
+
