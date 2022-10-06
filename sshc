@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 
-DIR_PATH  = File.expand_path("~/.config/sshc")
-INST_PATH = File.expand_path("~/.config/sshc/servers")
+DIR_PATH = File.expand_path("~/.config/sshc")
+INSTANCE_PATH = File.expand_path("~/.config/sshc/servers")
 
-unless Dir.exist?(DIR_PATH) && File.file?(INST_PATH)
+unless Dir.exist?(DIR_PATH) && File.file?(INSTANCE_PATH)
   system "mkdir", "-p", DIR_PATH
-  File.new(INST_PATH, "w")
+  File.new(INSTANCE_PATH, "w")
 end
 
 def connect
@@ -53,8 +53,8 @@ end
 
 def remove_server
   server_to_remove = select_server
-  servers = File.readlines(INST_PATH)
-  File.open(INST_PATH, "w") do |out_file|
+  servers = File.readlines(INSTANCE_PATH)
+  File.open(INSTANCE_PATH, "w") do |out_file|
     servers.each do |server|
       unless server_to_remove == csv_to_hash(server.strip.split(","))
         out_file.puts server
@@ -100,7 +100,7 @@ rescue Interrupt
 end
 
 def load_servers
-  File.open(INST_PATH, "r") do |file|
+  File.open(INSTANCE_PATH, "r") do |file|
     file.map do |line|
       csv_to_hash(line.strip.split(","))
     end
@@ -121,12 +121,12 @@ def widest_column_width(values)
 end
 
 def append_to_file(server)
-  File.open(INST_PATH, "a") { |f| f << "#{server}\n" }
+  File.open(INSTANCE_PATH, "a") { |f| f << "#{server}\n" }
 end
 
 def edit_in_file(previous_server, edited_server)
-  servers = File.readlines(INST_PATH)
-  File.open(INST_PATH, "w") do |out_file|
+  servers = File.readlines(INSTANCE_PATH)
+  File.open(INSTANCE_PATH, "w") do |out_file|
     servers.each do |server|
       if previous_server == csv_to_hash(server.strip.split(","))
         out_file.puts edited_server
